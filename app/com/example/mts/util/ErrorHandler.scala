@@ -23,21 +23,21 @@ final class ErrorHandler (
   /** @inheritdoc */
   override def onBadRequest(request: RequestHeader, message: String): Future[Result] = {
     Future.successful {
-      Results.BadRequest(Json.obj("error" -> "BadRequest"))
+      Results.BadRequest(Json.obj("error" -> message))
     }
   }
 
   /** @inheritdoc */
   override def onForbidden(request: RequestHeader, message: String): Future[Result] = {
     Future.successful {
-      Results.Forbidden(Json.obj("error" -> "Forbidden"))
+      Results.Forbidden(Json.obj("error" -> message))
     }
   }
 
   /** @inheritdoc */
   override def onNotFound(request: RequestHeader, message: String): Future[Result] = {
     Future.successful {
-      Results.NotFound(Json.obj("error" -> "NotFound"))
+      Results.NotFound(Json.obj("error" -> message))
     }
   }
 
@@ -55,7 +55,7 @@ final class ErrorHandler (
       Results.InternalServerError(Json.obj("error" -> exception.getLocalizedMessage))
     }
   }
-  
+
   private def log(exception: Throwable): Unit = {
     logger.error("core onServerError handled exception", exception)
   }
