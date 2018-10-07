@@ -1,5 +1,5 @@
 name := """money-transfer-sandbox"""
-organization := "com.test"
+organization := "com.example"
 
 version := "1.0-SNAPSHOT"
 
