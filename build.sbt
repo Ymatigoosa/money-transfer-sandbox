@@ -1,18 +1,15 @@
+import Dependencies._
+
 name := """money-transfer-sandbox"""
 organization := "com.example"
 
 version := "1.0-SNAPSHOT"
 
-lazy val root = (project in file(".")).enablePlugins(PlayScala)
+lazy val root = (project in file(".")).enablePlugins(PlayScala, JavaAppPackaging)
 
 scalaVersion := "2.12.6"
 
-libraryDependencies += "com.softwaremill.macwire" %% "macros" % "2.3.1" % "provided"
-libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test
+scalacOptions ++= CompilerOptions.scalacOptions
 
-
-// Adds additional packages into Twirl
-//TwirlKeys.templateImports += "com.test.controllers._"
-
-// Adds additional packages into conf/routes
-// play.sbt.routes.RoutesKeys.routesImport += "com.test.binders._"
+libraryDependencies ++= Dependencies.application
+libraryDependencies ++= Dependencies.test
