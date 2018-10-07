@@ -11,5 +11,4 @@ scalaVersion := "2.12.6"
 
 scalacOptions ++= CompilerOptions.scalacOptions
 
-libraryDependencies ++= Dependencies.application
-libraryDependencies ++= Dependencies.test
+libraryDependencies ++= Dependencies.core

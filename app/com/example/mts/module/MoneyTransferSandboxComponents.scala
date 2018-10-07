@@ -9,7 +9,8 @@ import router.Routes
 final class MoneyTransferSandboxComponents(context: Context)
   extends BuiltInComponentsFromContext(context)
     with NoHttpFiltersComponents
-    with ControllerComponents {
+    with ControllerComponents
+    with DatabaseComponents {
 
   implicit def as: ActorSystem = actorSystem
 
