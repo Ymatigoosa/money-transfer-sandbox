@@ -16,20 +16,16 @@ trait AccountService {
   def list(offset: Int, limit: Int): Future[Seq[Account]]
 
   /** create new account */
-  def create(account: Account): Future[Int]
+  def create(id: String): Future[Option[Account]]
 
   /**
     * Performs money transfer from `idFrom` account to `idTo` account
-    *
     * @param idFrom    id of account from which we are transfering money
     * @param idTo      id of account to which we are transfering money
     * @param amount    amount of money
-    * @param timestamp timestamp of operation
-    * @throws IllegalStateException  when invariant checks against db is failed
-    * @throws NoSuchElementException when one of elements not found
     * @return
     */
-  def transferMoney(idFrom: String, idTo: String, amount: BigDecimal, timestamp: Long): Future[MoneyTransferResult]
+  def transferMoney(idFrom: String, idTo: String, amount: BigDecimal): Future[MoneyTransferResult]
 }
 
 object AccountService {
@@ -58,8 +54,17 @@ final class AccountServiceImpl(dao: AccountDAO)(implicit ec: ExecutionContext) e
   }
 
   /** create new account */
-  def create(account: Account): Future[Int] = {
-    dao.create(account)
+  def create(id: String): Future[Option[Account]] = {
+    dao.findById(id).flatMap {
+      case Some(_) => // skip if already created
+        Future.successful(None)
+
+      case None =>
+        val timestamp: Long = System.currentTimeMillis()
+        val account = Account(id, BigDecimal(0), timestamp, timestamp)
+        dao.create(account).map(_ => Some(account))
+    }
+
   }
 
   /**
@@ -73,9 +78,9 @@ final class AccountServiceImpl(dao: AccountDAO)(implicit ec: ExecutionContext) e
   def transferMoney(
     idFrom: String,
     idTo: String,
-    amount: BigDecimal,
-    timestamp: Long
+    amount: BigDecimal
   ): Future[MoneyTransferResult] = {
+    val timestamp: Long = System.currentTimeMillis()
     dao.transferMoney(idFrom = idFrom, idTo = idTo, amount = amount, timestamp = timestamp)
       .recover {
         case ex: IllegalStateException =>

@@ -1,5 +1,6 @@
 package com.example.mts.util
 
+import com.example.mts.module.Jsons
 import play.api.http.DefaultHttpErrorHandler
 import play.api._
 import play.api.libs.json._
@@ -23,28 +24,28 @@ final class ErrorHandler (
   /** @inheritdoc */
   override def onBadRequest(request: RequestHeader, message: String): Future[Result] = {
     Future.successful {
-      Results.BadRequest(Json.obj("error" -> message))
+      Results.BadRequest(Jsons.error(message))
     }
   }
 
   /** @inheritdoc */
   override def onForbidden(request: RequestHeader, message: String): Future[Result] = {
     Future.successful {
-      Results.Forbidden(Json.obj("error" -> message))
+      Results.Forbidden(Jsons.error(message))
     }
   }
 
   /** @inheritdoc */
   override def onNotFound(request: RequestHeader, message: String): Future[Result] = {
     Future.successful {
-      Results.NotFound(Json.obj("error" -> message))
+      Results.NotFound(Jsons.error(message))
     }
   }
 
   /** @inheritdoc */
   override def onOtherClientError(request: RequestHeader, statusCode: Int, message: String): Future[Result] = {
     Future.successful {
-      Results.Status(statusCode)(Json.obj("error" -> message))
+      Results.Status(statusCode)(Jsons.error(message))
     }
   }
 
@@ -52,7 +53,7 @@ final class ErrorHandler (
   override def onServerError(request: RequestHeader, exception: Throwable): Future[Result] = {
     log(exception)
     Future.successful {
-      Results.InternalServerError(Json.obj("error" -> exception.getLocalizedMessage))
+      Results.InternalServerError(Jsons.error(exception.getLocalizedMessage))
     }
   }
 
