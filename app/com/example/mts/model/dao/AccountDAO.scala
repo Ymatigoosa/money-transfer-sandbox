@@ -2,46 +2,25 @@ package com.example.mts.model.dao
 
 import akka.Done
 import com.example.mts.model.entity.Account
+import com.example.mts.util.Logging
 import play.api.db.slick.HasDatabaseConfig
 import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
 
-final class AccountDAO(
-  protected override val dbConfig: DatabaseConfig[JdbcProfile]
-)(implicit ec: ExecutionContext) extends HasDatabaseConfig[JdbcProfile] {
-
-  import profile.api._
-
-  class AccountTable(tag: Tag) extends Table[Account](tag, "ACCOUNT") {
-
-    def id = column[String]("ID", O.PrimaryKey)
-
-    def balance = column[BigDecimal]("BALANCE")
-
-    def isActive = column[Boolean]("ISACTIVE")
-
-    def createdAt = column[Long]("CREATEDAT")
-
-    def updatedAt = column[Long]("UPDATEDAT")
-
-    def * = (id, balance, isActive, createdAt, updatedAt) <> (Account.tupled, Account.unapply _)
-  }
-
-  private val accounts = TableQuery[AccountTable]
+/** DAO for managing account information */
+trait AccountDAO {
 
   /** Retrieve an account from the id. */
-  def findById(id: String): Future[Option[Account]] =
-    db.run(accounts.filter(_.id === id).result.headOption)
+  def findById(id: String): Future[Option[Account]]
 
   /** Retrieve an account from the id. */
-  def list(offset: Int, limit: Int): Future[Seq[Account]] =
-    db.run(accounts.drop(offset).take(limit).result)
+  def list(offset: Int, limit: Int): Future[Seq[Account]]
 
-  def create(account: Account): Future[Int] = {
-    db.run(accounts += account)
-  }
+  /** create new account */
+  def create(account: Account): Future[Int]
 
   /**
     *
@@ -53,10 +32,86 @@ final class AccountDAO(
     * @throws NoSuchElementException when one of elements not found
     * @return
     */
-  def transferMoney(idFrom: String, idTo: String, amount: BigDecimal, timestamp: Long): Future[(Int, Int)] = {
+  def transferMoney(idFrom: String, idTo: String, amount: BigDecimal, timestamp: Long): Future[(Int, Int)]
+}
+
+/** internal methods for managing accounts table */
+trait AccountDAOMaintenance {
+  def createTables(): Future[Done]
+
+  def dropTables(): Future[Done]
+}
+
+final class AccountDAOImpl(
+  protected override val dbConfig: DatabaseConfig[JdbcProfile]
+)(implicit ec: ExecutionContext)
+  extends HasDatabaseConfig[JdbcProfile]
+    with AccountDAO
+    with AccountDAOMaintenance
+    with Logging {
+
+  import profile.api._
+
+  class AccountTable(tag: Tag) extends Table[Account](tag, "ACCOUNT") {
+
+    def id = column[String]("ID", O.PrimaryKey)
+
+    def balance = column[BigDecimal]("BALANCE")
+
+    def createdAt = column[Long]("CREATEDAT")
+
+    def updatedAt = column[Long]("UPDATEDAT")
+
+    def * = (id, balance, createdAt, updatedAt) <> (Account.tupled, Account.unapply _)
+  }
+
+  private val accounts = TableQuery[AccountTable]
+
+  /** @inheritdoc */
+  override def findById(id: String): Future[Option[Account]] =
+    db.run(accounts.filter(_.id === id).result.headOption)
+
+  /** @inheritdoc */
+  override def list(offset: Int, limit: Int): Future[Seq[Account]] =
+    db.run(accounts.drop(offset).take(limit).result)
+
+  /** @inheritdoc */
+  override def create(account: Account): Future[Int] = {
+    db.run(accounts += account)
+  }
+
+  /** @inheritdoc */
+  override def transferMoney(idFrom: String, idTo: String, amount: BigDecimal, timestamp: Long): Future[(Int, Int)] = {
     db.run(transferMoneyQuery(idFrom = idFrom, idTo = idTo, amount = amount, timestamp = timestamp).transactionally)
   }
 
+  /** @inheritdoc */
+  override def createTables(): Future[Done] = {
+    val request = accounts.schema.create ::
+      Nil
+
+    safeRunSchemaAction(DBIO.sequence(request))
+  }
+
+  /** @inheritdoc */
+  override def dropTables(): Future[Done] = {
+    val request = accounts.schema.drop ::
+      Nil
+
+    safeRunSchemaAction(DBIO.sequence(request))
+  }
+
+  /** run schema action with recover */
+  private def safeRunSchemaAction[T](request: DBIOAction[T, NoStream, Effect.Schema]) = {
+    db.run(request)
+      .map(_ => Done)
+      .recover {
+        case NonFatal(e) =>
+          logger.warn(s"schema action failed", e)
+          Done
+      }
+  }
+  
   private def transferMoneyQuery(idFrom: String, idTo: String, amount: BigDecimal, timestamp: Long) = {
     for {
       maybefrom <- accounts.filter(_.id === idFrom.bind).result.headOption
@@ -109,20 +164,6 @@ final class AccountDAO(
         .map(i => (i.balance, i.updatedAt))
         .update((to.balance + amount, timestamp))
     } yield (updFrom, updTo)
-  }
-
-  def createTables: DBIOAction[Done, NoStream, Effect.Schema] = {
-    val request = accounts.schema.create ::
-      Nil
-
-    DBIO.sequence(request).map(_ => Done)
-  }
-
-  def dropTables: DBIOAction[Done, NoStream, Effect.Schema] = {
-    val request = accounts.schema.drop ::
-      Nil
-
-    DBIO.sequence(request).map(_ => Done)
   }
 
 }
