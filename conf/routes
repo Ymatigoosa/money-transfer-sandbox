@@ -1,0 +1,15 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# https://www.playframework.com/documentation/latest/ScalaRouting
+# ~~~~
+
+# Routes
+GET /api/account/:id com.example.mts.controllers.AccountManagementController.findById(id: String)
+GET /api/account com.example.mts.controllers.AccountManagementController.list(offset: Option[Int], limit: Option[Int])
+PUT /api/account/:id com.example.mts.controllers.AccountManagementController.create(id: String)
+POST /api/account/balance/add com.example.mts.controllers.AccountManagementController.addMoney()
+POST /api/moneytransfer com.example.mts.controllers.MoneyTransferController.transferMoney()
+
+# Internal routes
+POST /maintenance/tables com.example.mts.controllers.MaintenanceController.createTables()
+DELETE /maintenance/tables com.example.mts.controllers.MaintenanceController.dropTables()
