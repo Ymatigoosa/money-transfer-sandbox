@@ -1,7 +1,7 @@
 package com.example.mts.controllers
 
 import com.example.mts.model.service.AccountService
-import com.example.mts.model.service.AccountService.{MoneyTransferError, MoneyTransferNotFound, MoneyTransferResult, MoneyTransferSuccess}
+import com.example.mts.model.service.AccountService.{MoneyTransferError, MoneyTransferNotFound, MoneyTransferSuccess}
 import com.example.mts.util.{Jsons, Logging}
 import play.api.libs.json._
 import play.api.mvc._

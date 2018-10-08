@@ -6,7 +6,7 @@ import com.example.mts.util.{Jsons, Logging}
 import play.api.libs.json._
 import play.api.mvc._
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 /** Controller for managing crud operations for accounts */
 final class AccountManagementController(

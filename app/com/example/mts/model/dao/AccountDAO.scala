@@ -141,7 +141,7 @@ final class AccountDAOImpl(
       case (Some(from), Some(to)) if from.balance >= amount =>
         doTransfer(from = from, to = to, amount = amount, timestamp = timestamp)
 
-      case (Some(from), Some(to)) =>
+      case (Some(from), Some(_)) =>
         DBIO.failed(new IllegalStateException(s"not enough money in ${from.id} account"))
 
       case (None, None) =>

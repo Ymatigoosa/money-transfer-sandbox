@@ -1,6 +1,6 @@
 package com.example.mts.module
 
-import com.example.mts.model.dao.{AccountDAO, AccountDAOImpl, AccountDAOMaintenance}
+import com.example.mts.model.dao.{AccountDAO, AccountDAOMaintenance}
 import com.example.mts.model.service.{AccountService, AccountServiceImpl}
 import com.softwaremill.macwire._
 
