@@ -3,6 +3,12 @@
 # https://www.playframework.com/documentation/latest/ScalaRouting
 # ~~~~
 
-# An example controller showing a sample home page
-GET /accountmanagementcontroller/test com.example.mts.controllers.AccountManagementController.test()
-GET /moneytransfercontroller/test com.example.mts.controllers.MoneyTransferController.test()
+# Routes
+GET /api/account/:id com.example.mts.controllers.AccountManagementController.findById(id: String)
+GET /api/account com.example.mts.controllers.AccountManagementController.list(offset: Option[Int], limit: Option[Int])
+PUT /api/account/:id com.example.mts.controllers.AccountManagementController.create(id: String)
+POST /api/moneytransfer com.example.mts.controllers.MoneyTransferController.transferMoney()
+
+# Internal routes
+POST /maintenance/tables/create com.example.mts.controllers.MaintenanceController.createTables()
+POST /maintenance/tables/drop com.example.mts.controllers.MaintenanceController.dropTables()

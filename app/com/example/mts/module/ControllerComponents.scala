@@ -1,6 +1,6 @@
 package com.example.mts.module
 
-import com.example.mts.controllers.{AccountManagementController, MoneyTransferController}
+import com.example.mts.controllers.{AccountManagementController, MaintenanceController, MoneyTransferController}
 import com.example.mts.model.dao.AccountDAOMaintenance
 import com.example.mts.model.service.AccountService
 import com.softwaremill.macwire._
@@ -19,4 +19,7 @@ trait ControllerComponents
 
   final lazy val moneyTransferController: MoneyTransferController =
     wire[MoneyTransferController]
+
+  final lazy val maintenanceController: MaintenanceController =
+    wire[MaintenanceController]
 }
