@@ -27,6 +27,12 @@ trait AccountService {
     * @return
     */
   def transferMoney(idFrom: String, idTo: String, amount: BigDecimal): Future[MoneyTransferResult]
+
+  /**
+    * add money to `id` account
+    * @return old account(!)
+    **/
+  def addMoney(id: String, amount: BigDecimal): Future[Option[Account]]
 }
 
 object AccountService {
@@ -46,18 +52,18 @@ final class AccountServiceImpl(dao: AccountDAO)(implicit ec: ExecutionContext) e
 
   import AccountService._
 
-  /** Retrieve an account from the id. */
-  def findById(id: String): Future[Option[Account]] = {
+  /** @inheritdoc */
+  override  def findById(id: String): Future[Option[Account]] = {
     dao.findById(id)
   }
 
-  /** Retrieve an account from the id. */
-  def list(offset: Int, limit: Int): Future[Seq[Account]] = {
+  /** @inheritdoc */
+  override  def list(offset: Int, limit: Int): Future[Seq[Account]] = {
     dao.list(offset = offset, limit = limit)
   }
 
-  /** create new account */
-  def create(id: String): Future[Option[Account]] = {
+  /** @inheritdoc */
+  override  def create(id: String): Future[Option[Account]] = {
     logger.info(s"creating new account with id=$id")
     dao.findById(id).flatMap {
       case Some(_) => // skip if already created
@@ -75,15 +81,8 @@ final class AccountServiceImpl(dao: AccountDAO)(implicit ec: ExecutionContext) e
 
   }
 
-  /**
-    *
-    * @param idFrom    id of account from which we are transfering money
-    * @param idTo      id of account to which we are transfering money
-    * @param amount    amount of money
-    * @param timestamp timestamp of operation
-    * @return
-    */
-  def transferMoney(
+  /** @inheritdoc */
+  override  def transferMoney(
     idFrom: String,
     idTo: String,
     amount: BigDecimal
@@ -102,6 +101,20 @@ final class AccountServiceImpl(dao: AccountDAO)(implicit ec: ExecutionContext) e
         case ex: NoSuchElementException =>
           logger.warn("transfering money ended with error", ex)
           MoneyTransferNotFound(ex.getMessage)
+    }
+  }
+
+  /** @inheritdoc */
+  override def addMoney(id: String, amount: BigDecimal): Future[Option[Account]] = {
+    logger.info(s"add $amount money $id")
+    val timestamp: Long = System.currentTimeMillis()
+    dao.findById(id).flatMap {
+      case Some(account) =>
+        dao.addMoney(id, account.balance + amount, timestamp)
+          .map(_ => Some(account)) // returning old account here
+
+      case None =>
+        Future.successful(None)
     }
   }
 }

@@ -7,6 +7,7 @@
 GET /api/account/:id com.example.mts.controllers.AccountManagementController.findById(id: String)
 GET /api/account com.example.mts.controllers.AccountManagementController.list(offset: Option[Int], limit: Option[Int])
 PUT /api/account/:id com.example.mts.controllers.AccountManagementController.create(id: String)
+POST /api/account/balance/add com.example.mts.controllers.AccountManagementController.addMoney()
 POST /api/moneytransfer com.example.mts.controllers.MoneyTransferController.transferMoney()
 
 # Internal routes

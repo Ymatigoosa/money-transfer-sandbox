@@ -42,9 +42,22 @@ final class AccountManagementController(
     }
   }
 
+  /** create new account */
+  def addMoney(): Action[AddMoneyRequest] = Action.async(parse.json[AddMoneyRequest]) { request =>
+    val body = request.body
+    accountService.addMoney(id = body.id, amount = body.amount).map {
+      case Some(_) => Ok
+      case None => NotFound
+    }
+  }
+
 }
 
 object AccountManagementController {
-  implicit val accountOutFormat: OFormat[Account] =
+  implicit val formatAccountResponse: OFormat[Account] =
     Json.format[Account]
+
+  case class AddMoneyRequest(id: String, amount: BigDecimal)
+  implicit val formatAddMoneyRequest: OFormat[AddMoneyRequest] =
+    Json.format[AddMoneyRequest]
 }

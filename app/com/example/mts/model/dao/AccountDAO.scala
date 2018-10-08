@@ -33,6 +33,9 @@ trait AccountDAO {
     * @return
     */
   def transferMoney(idFrom: String, idTo: String, amount: BigDecimal, timestamp: Long): Future[(Int, Int)]
+
+  /** add money to `id` account */
+  def addMoney(id: String, newamount: BigDecimal, timestamp: Long): Future[Int]
 }
 
 /** internal methods for managing accounts table */
@@ -83,6 +86,18 @@ final class AccountDAOImpl(
   /** @inheritdoc */
   override def transferMoney(idFrom: String, idTo: String, amount: BigDecimal, timestamp: Long): Future[(Int, Int)] = {
     db.run(transferMoneyQuery(idFrom = idFrom, idTo = idTo, amount = amount, timestamp = timestamp).transactionally)
+  }
+
+  /** @inheritdoc */
+  override def addMoney(id: String, newamount: BigDecimal, timestamp: Long): Future[Int] = {
+    val request = for {
+      updFrom <- accounts
+        .filter(_.id === id.bind)
+        .map(i => (i.balance, i.updatedAt))
+        .update((newamount, timestamp))
+    } yield updFrom
+
+    db.run(request)
   }
 
   /** @inheritdoc */
