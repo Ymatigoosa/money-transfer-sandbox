@@ -35,6 +35,8 @@ object AccountService {
 
   case class MoneyTransferError(msg: String) extends MoneyTransferResult
 
+  case class MoneyTransferNotFound(msg: String) extends MoneyTransferResult
+
   case object MoneyTransferSuccess extends MoneyTransferResult
 
 }
@@ -87,7 +89,7 @@ final class AccountServiceImpl(dao: AccountDAO)(implicit ec: ExecutionContext) e
           MoneyTransferError(ex.getMessage)
 
         case ex: NoSuchElementException =>
-          MoneyTransferError(ex.getMessage)
+          MoneyTransferNotFound(ex.getMessage)
       }.map(_ => MoneyTransferSuccess)
   }
 }

@@ -1,6 +1,6 @@
 package com.example.mts.util
 
-import com.example.mts.module.Jsons
+import Jsons
 import play.api.http.DefaultHttpErrorHandler
 import play.api._
 import play.api.libs.json._

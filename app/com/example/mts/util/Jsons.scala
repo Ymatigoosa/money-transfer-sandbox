@@ -1,4 +1,4 @@
-package com.example.mts.module
+package com.example.mts.util
 
 import play.api.libs.json._
 

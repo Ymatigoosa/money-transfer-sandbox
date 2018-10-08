@@ -2,8 +2,7 @@ package com.example.mts.controllers
 
 import com.example.mts.model.entity.Account
 import com.example.mts.model.service.AccountService
-import com.example.mts.module.Jsons
-import com.example.mts.util.Logging
+import com.example.mts.util.{Jsons, Logging}
 import play.api.libs.json._
 import play.api.mvc._
 
