@@ -12,7 +12,9 @@ final class MoneyTransferSandboxComponents(context: Context)
   extends BuiltInComponentsFromContext(context)
     with NoHttpFiltersComponents
     with ControllerComponents
-    with DatabaseComponents {
+    with DatabaseComponents
+    with DAOComponents
+    with ServiceComponents {
 
   override lazy val httpErrorHandler: HttpErrorHandler = wire[ErrorHandler]
 

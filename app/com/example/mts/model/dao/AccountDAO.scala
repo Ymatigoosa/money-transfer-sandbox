@@ -23,7 +23,7 @@ trait AccountDAO {
   def create(account: Account): Future[Int]
 
   /**
-    *
+    * Performs money transfer from `idFrom` account to `idTo` account
     * @param idFrom    id of account from which we are transfering money
     * @param idTo      id of account to which we are transfering money
     * @param amount    amount of money
@@ -111,7 +111,7 @@ final class AccountDAOImpl(
           Done
       }
   }
-  
+
   private def transferMoneyQuery(idFrom: String, idTo: String, amount: BigDecimal, timestamp: Long) = {
     for {
       maybefrom <- accounts.filter(_.id === idFrom.bind).result.headOption
