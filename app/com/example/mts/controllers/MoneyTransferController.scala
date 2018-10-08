@@ -8,6 +8,7 @@ import play.api.mvc._
 
 import scala.concurrent.ExecutionContext
 
+/** Controller for managing multi account tasks */
 final class MoneyTransferController (
   override val controllerComponents: ControllerComponents,
   accountService: AccountService

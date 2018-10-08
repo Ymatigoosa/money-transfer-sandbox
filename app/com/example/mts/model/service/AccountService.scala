@@ -2,6 +2,7 @@ package com.example.mts.model.service
 
 import com.example.mts.model.dao.AccountDAO
 import com.example.mts.model.entity.Account
+import com.example.mts.util.Logging
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -41,7 +42,7 @@ object AccountService {
 
 }
 
-final class AccountServiceImpl(dao: AccountDAO)(implicit ec: ExecutionContext) extends AccountService {
+final class AccountServiceImpl(dao: AccountDAO)(implicit ec: ExecutionContext) extends AccountService with Logging {
 
   import AccountService._
 
@@ -57,14 +58,19 @@ final class AccountServiceImpl(dao: AccountDAO)(implicit ec: ExecutionContext) e
 
   /** create new account */
   def create(id: String): Future[Option[Account]] = {
+    logger.info(s"creating new account with id=$id")
     dao.findById(id).flatMap {
       case Some(_) => // skip if already created
+        logger.warn(s"account already exists id=$id")
         Future.successful(None)
 
       case None =>
         val timestamp: Long = System.currentTimeMillis()
         val account = Account(id, BigDecimal(0), timestamp, timestamp)
-        dao.create(account).map(_ => Some(account))
+        dao.create(account).map {_ =>
+          logger.info(s"created account $account")
+          Some(account)
+        }
     }
 
   }
@@ -82,13 +88,16 @@ final class AccountServiceImpl(dao: AccountDAO)(implicit ec: ExecutionContext) e
     idTo: String,
     amount: BigDecimal
   ): Future[MoneyTransferResult] = {
+    logger.info(s"transfering $amount money from $idFrom to $idTo")
     val timestamp: Long = System.currentTimeMillis()
     dao.transferMoney(idFrom = idFrom, idTo = idTo, amount = amount, timestamp = timestamp)
       .recover {
         case ex: IllegalStateException =>
+          logger.warn("transfering money ended with error", ex)
           MoneyTransferError(ex.getMessage)
 
         case ex: NoSuchElementException =>
+          logger.warn("transfering money ended with error", ex)
           MoneyTransferNotFound(ex.getMessage)
       }.map(_ => MoneyTransferSuccess)
   }

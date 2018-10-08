@@ -6,6 +6,7 @@ import play.api.mvc._
 
 import scala.concurrent.ExecutionContext
 
+/** Controller for managing internal database tasks */
 final class MaintenanceController (
   override val controllerComponents: ControllerComponents,
   accountDAOMaintenance: AccountDAOMaintenance

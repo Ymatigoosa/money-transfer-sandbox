@@ -87,6 +87,7 @@ final class AccountDAOImpl(
 
   /** @inheritdoc */
   override def createTables(): Future[Done] = {
+    logger.info("creating Account table...")
     val request = accounts.schema.create ::
       Nil
 
@@ -95,6 +96,7 @@ final class AccountDAOImpl(
 
   /** @inheritdoc */
   override def dropTables(): Future[Done] = {
+    logger.info("dropping Account table...")
     val request = accounts.schema.drop ::
       Nil
 

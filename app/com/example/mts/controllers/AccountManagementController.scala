@@ -8,6 +8,7 @@ import play.api.mvc._
 
 import scala.concurrent.{ExecutionContext, Future}
 
+/** Controller for managing crud operations for accounts */
 final class AccountManagementController(
   override val controllerComponents: ControllerComponents,
   accountService: AccountService
