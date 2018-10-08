@@ -90,8 +90,11 @@ final class AccountServiceImpl(dao: AccountDAO)(implicit ec: ExecutionContext) e
   ): Future[MoneyTransferResult] = {
     logger.info(s"transfering $amount money from $idFrom to $idTo")
     val timestamp: Long = System.currentTimeMillis()
-    dao.transferMoney(idFrom = idFrom, idTo = idTo, amount = amount, timestamp = timestamp)
-      .recover {
+    val result: Future[MoneyTransferResult] =
+      dao.transferMoney(idFrom = idFrom, idTo = idTo, amount = amount, timestamp = timestamp)
+      .map(_ => MoneyTransferSuccess)
+
+    result.recover {
         case ex: IllegalStateException =>
           logger.warn("transfering money ended with error", ex)
           MoneyTransferError(ex.getMessage)
@@ -99,6 +102,6 @@ final class AccountServiceImpl(dao: AccountDAO)(implicit ec: ExecutionContext) e
         case ex: NoSuchElementException =>
           logger.warn("transfering money ended with error", ex)
           MoneyTransferNotFound(ex.getMessage)
-      }.map(_ => MoneyTransferSuccess)
+    }
   }
 }
